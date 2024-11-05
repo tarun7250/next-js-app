@@ -1,10 +1,26 @@
+import { getFollowedCharacters } from "@/queries/followedCharacters";
 import Image from "next/image";
+import { useLayoutEffect, useState } from "react";
 
 const _NOOP = () => {};
 
 export const Character = ({ character, onFollow = _NOOP }) => {
     const { image, name, status, location, gender, species, type, origin } =
     character;
+
+    const [isFollowing, setIsFollowing] = useState(false);
+
+    useLayoutEffect(()=>{
+      getFollowedCharacters().then((result)=>{
+        result.forEach((item)=> {
+          if(item.id === character.id) {
+            setIsFollowing(true);
+          }
+        })
+      },()=>{
+        console.error("error occured");
+      })
+    },[character.id]);
 
     return (
         <div className="p-4 h-full w-full flex flex-row flex-wrap gap-4 justify-center">
@@ -39,8 +55,8 @@ export const Character = ({ character, onFollow = _NOOP }) => {
               Origin: <span className="italic font-normal">{origin.name}</span>
             </div>
             <span>
-              <button onClick={onFollow} className="flex px-1 follow-btn">
-                Follow
+              <button onClick={()=>{onFollow(); setIsFollowing(true)}} className="flex px-1 follow-btn">
+                {isFollowing?"Unfollow":"Follow"}
               </button>
             </span>
           </div>
